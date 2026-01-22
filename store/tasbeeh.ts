@@ -1,94 +1,94 @@
 /**
- * Tasbeeh Zustand Store
+ * Tasbeeh Zustand Store with Persist
  */
 
-import { generateId } from "@/services/async-storage.service";
-import { tasbeehStorage } from "@/services/tasbeeh-storage.service";
+import { STORAGE_KEYS } from "@/constants/storage-keys";
 import type { Tasbeeh, TasbeehInput, TasbeehUpdate } from "@/types/tasbeeh";
+import { generateId } from "@/utils";
+
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { create } from "zustand";
+import { createJSONStorage, persist } from "zustand/middleware";
 
 interface TasbeehState {
   tasbeehs: Tasbeeh[];
-  loaded: boolean;
 
   // Actions
-  loadFromStorage: () => Promise<void>;
-  addTasbeeh: (input: TasbeehInput) => Promise<Tasbeeh>;
-  updateTasbeeh: (
-    id: string,
-    updates: TasbeehUpdate,
-  ) => Promise<Tasbeeh | null>;
-  deleteTasbeeh: (id: string) => Promise<boolean>;
-  incrementCount: (id: string) => Promise<Tasbeeh | null>;
-  resetCount: (id: string) => Promise<Tasbeeh | null>;
+  addTasbeeh: (input: TasbeehInput) => Tasbeeh;
+  updateTasbeeh: (id: string, updates: TasbeehUpdate) => Tasbeeh | null;
+  deleteTasbeeh: (id: string) => boolean;
+  incrementCount: (id: string) => Tasbeeh | null;
+  resetCount: (id: string) => Tasbeeh | null;
   getTasbeeh: (id: string) => Tasbeeh | undefined;
 }
 
-export const useTasbeehStore = create<TasbeehState>((set, get) => ({
-  tasbeehs: [],
-  loaded: false,
+export const useTasbeehStore = create<TasbeehState>()(
+  persist(
+    (set, get) => ({
+      tasbeehs: [],
 
-  loadFromStorage: async () => {
-    if (get().loaded) return;
-    const data = await tasbeehStorage.loadAll();
-    set({ tasbeehs: data, loaded: true });
-  },
+      addTasbeeh: (input: TasbeehInput) => {
+        const now = new Date().toISOString();
+        const newTasbeeh: Tasbeeh = {
+          id: generateId("tasbeeh"),
+          ...input,
+          currentCount: 0,
+          createdAt: now,
+          updatedAt: now,
+        };
 
-  addTasbeeh: async (input: TasbeehInput) => {
-    const now = new Date().toISOString();
-    const newTasbeeh: Tasbeeh = {
-      id: generateId("tasbeeh"),
-      ...input,
-      currentCount: 0,
-      createdAt: now,
-      updatedAt: now,
-    };
+        set((state) => ({ tasbeehs: [...state.tasbeehs, newTasbeeh] }));
+        return newTasbeeh;
+      },
 
-    const updatedList = [...get().tasbeehs, newTasbeeh];
-    set({ tasbeehs: updatedList });
-    await tasbeehStorage.saveAll(updatedList);
-    return newTasbeeh;
-  },
+      updateTasbeeh: (id: string, updates: TasbeehUpdate) => {
+        const { tasbeehs } = get();
+        const index = tasbeehs.findIndex((t) => t.id === id);
+        if (index === -1) return null;
 
-  updateTasbeeh: async (id: string, updates: TasbeehUpdate) => {
-    const { tasbeehs } = get();
-    const index = tasbeehs.findIndex((t) => t.id === id);
-    if (index === -1) return null;
+        const updatedTasbeeh: Tasbeeh = {
+          ...tasbeehs[index],
+          ...updates,
+          updatedAt: new Date().toISOString(),
+        };
 
-    const updatedTasbeeh: Tasbeeh = {
-      ...tasbeehs[index],
-      ...updates,
-      updatedAt: new Date().toISOString(),
-    };
+        set((state) => ({
+          tasbeehs: state.tasbeehs.map((t) =>
+            t.id === id ? updatedTasbeeh : t,
+          ),
+        }));
+        return updatedTasbeeh;
+      },
 
-    const updatedList = [...tasbeehs];
-    updatedList[index] = updatedTasbeeh;
-    set({ tasbeehs: updatedList });
-    await tasbeehStorage.saveAll(updatedList);
-    return updatedTasbeeh;
-  },
+      deleteTasbeeh: (id: string) => {
+        const { tasbeehs } = get();
+        if (!tasbeehs.some((t) => t.id === id)) return false;
 
-  deleteTasbeeh: async (id: string) => {
-    const { tasbeehs } = get();
-    const updatedList = tasbeehs.filter((t) => t.id !== id);
-    if (updatedList.length === tasbeehs.length) return false;
+        set((state) => ({
+          tasbeehs: state.tasbeehs.filter((t) => t.id !== id),
+        }));
+        return true;
+      },
 
-    set({ tasbeehs: updatedList });
-    await tasbeehStorage.saveAll(updatedList);
-    return true;
-  },
+      incrementCount: (id: string) => {
+        const tasbeeh = get().tasbeehs.find((t) => t.id === id);
+        if (!tasbeeh) return null;
+        return get().updateTasbeeh(id, {
+          currentCount: tasbeeh.currentCount + 1,
+        });
+      },
 
-  incrementCount: async (id: string) => {
-    const tasbeeh = get().tasbeehs.find((t) => t.id === id);
-    if (!tasbeeh) return null;
-    return get().updateTasbeeh(id, { currentCount: tasbeeh.currentCount + 1 });
-  },
+      resetCount: (id: string) => {
+        return get().updateTasbeeh(id, { currentCount: 0 });
+      },
 
-  resetCount: async (id: string) => {
-    return get().updateTasbeeh(id, { currentCount: 0 });
-  },
-
-  getTasbeeh: (id: string) => {
-    return get().tasbeehs.find((t) => t.id === id);
-  },
-}));
+      getTasbeeh: (id: string) => {
+        return get().tasbeehs.find((t) => t.id === id);
+      },
+    }),
+    {
+      name: STORAGE_KEYS.TASBEEH,
+      storage: createJSONStorage(() => AsyncStorage),
+    },
+  ),
+);

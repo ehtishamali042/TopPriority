@@ -3,7 +3,7 @@
  * Displays all tasbeehs and allows navigation to counter/edit screens
  */
 
-import { useTasbeehActions, useTasbeehLoader } from "@/hooks/use-tasbeeh";
+import { useTasbeehActions, useTasbeehs } from "@/hooks/use-tasbeeh";
 import { useThemeColor } from "@/hooks/use-theme-color";
 import type { Tasbeeh } from "@/types/tasbeeh";
 import { PERIOD_LABELS } from "@/types/tasbeeh";
@@ -23,7 +23,7 @@ import { calculateProgressInfo, getCardBgColor } from "./utils";
 
 export default function TasbeehListScreen() {
   const router = useRouter();
-  const { tasbeehs, loaded } = useTasbeehLoader();
+  const { tasbeehs, isReady } = useTasbeehs();
   const { deleteTasbeeh } = useTasbeehActions();
 
   const backgroundColor = useThemeColor({}, "background");
@@ -147,7 +147,7 @@ export default function TasbeehListScreen() {
     </View>
   );
 
-  if (!loaded) {
+  if (!isReady) {
     return (
       <View style={[styles.container, styles.centered, { backgroundColor }]}>
         <ActivityIndicator size="large" color={tintColor} />

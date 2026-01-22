@@ -4,30 +4,36 @@
  */
 
 import { useTasbeehStore } from "@/store/tasbeeh";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 /**
- * Hook to load tasbeehs from storage on app start
+ * Hook to check if store has been hydrated from storage
  */
-export function useTasbeehLoader() {
-  const tasbeehs = useTasbeehStore((state) => state.tasbeehs);
-  const loaded = useTasbeehStore((state) => state.loaded);
-  const loadFromStorage = useTasbeehStore((state) => state.loadFromStorage);
+export function useTasbeehHydration() {
+  const [hydrated, setHydrated] = useState(false);
 
   useEffect(() => {
-    loadFromStorage();
-  }, [loadFromStorage]);
+    const unsubFinishHydration = useTasbeehStore.persist.onFinishHydration(() =>
+      setHydrated(true),
+    );
 
-  return { tasbeehs, loaded };
+    setHydrated(useTasbeehStore.persist.hasHydrated());
+
+    return () => {
+      unsubFinishHydration();
+    };
+  }, []);
+
+  return hydrated;
 }
 
 /**
- * Hook to get all tasbeehs
+ * Hook to get all tasbeehs with hydration status
  */
 export function useTasbeehs() {
   const tasbeehs = useTasbeehStore((state) => state.tasbeehs);
-  const loaded = useTasbeehStore((state) => state.loaded);
-  return { tasbeehs, loaded };
+  const hydrated = useTasbeehHydration();
+  return { tasbeehs, isReady: hydrated };
 }
 
 /**
