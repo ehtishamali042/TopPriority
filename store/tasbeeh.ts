@@ -2,16 +2,9 @@
  * Tasbeeh Zustand Store
  */
 
-import {
-  generateId,
-  loadTasbeehs,
-  saveTasbeehs,
-} from "@/features/tasbeeh/storage";
-import type {
-  Tasbeeh,
-  TasbeehInput,
-  TasbeehUpdate,
-} from "@/features/tasbeeh/types";
+import { generateId } from "@/services/async-storage.service";
+import { tasbeehStorage } from "@/services/tasbeeh-storage.service";
+import type { Tasbeeh, TasbeehInput, TasbeehUpdate } from "@/types/tasbeeh";
 import { create } from "zustand";
 
 interface TasbeehState {
@@ -37,14 +30,14 @@ export const useTasbeehStore = create<TasbeehState>((set, get) => ({
 
   loadFromStorage: async () => {
     if (get().loaded) return;
-    const data = await loadTasbeehs();
+    const data = await tasbeehStorage.loadAll();
     set({ tasbeehs: data, loaded: true });
   },
 
   addTasbeeh: async (input: TasbeehInput) => {
     const now = new Date().toISOString();
     const newTasbeeh: Tasbeeh = {
-      id: generateId(),
+      id: generateId("tasbeeh"),
       ...input,
       currentCount: 0,
       createdAt: now,
@@ -53,7 +46,7 @@ export const useTasbeehStore = create<TasbeehState>((set, get) => ({
 
     const updatedList = [...get().tasbeehs, newTasbeeh];
     set({ tasbeehs: updatedList });
-    await saveTasbeehs(updatedList);
+    await tasbeehStorage.saveAll(updatedList);
     return newTasbeeh;
   },
 
@@ -71,7 +64,7 @@ export const useTasbeehStore = create<TasbeehState>((set, get) => ({
     const updatedList = [...tasbeehs];
     updatedList[index] = updatedTasbeeh;
     set({ tasbeehs: updatedList });
-    await saveTasbeehs(updatedList);
+    await tasbeehStorage.saveAll(updatedList);
     return updatedTasbeeh;
   },
 
@@ -81,7 +74,7 @@ export const useTasbeehStore = create<TasbeehState>((set, get) => ({
     if (updatedList.length === tasbeehs.length) return false;
 
     set({ tasbeehs: updatedList });
-    await saveTasbeehs(updatedList);
+    await tasbeehStorage.saveAll(updatedList);
     return true;
   },
 

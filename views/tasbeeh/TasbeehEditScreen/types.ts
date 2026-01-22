@@ -2,7 +2,7 @@
  * TasbeehEditScreen Types
  */
 
-import type { TasbeehPeriod } from "@/features/tasbeeh";
+import type { TasbeehPeriod } from "@/types/tasbeeh";
 
 export interface TasbeehEditScreenProps {
   // Add any screen-specific props here

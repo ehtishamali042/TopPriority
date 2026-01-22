@@ -8,7 +8,7 @@ import type {
   TasbeehInput,
   TasbeehPeriod,
   TasbeehUpdate,
-} from "../features/tasbeeh/types";
+} from "@/types/tasbeeh";
 import {
   CollectionStorageService,
   createCollectionStorage,
@@ -320,37 +320,3 @@ export const tasbeehStorage = new TasbeehStorageService();
  * Export the class for testing or custom instances
  */
 export { TasbeehStorageService };
-
-// ============================================
-// Legacy API Compatibility Layer
-// ============================================
-
-/**
- * Load all tasbeehs from storage (legacy compatibility)
- * @deprecated Use tasbeehStorage.loadAll() instead
- */
-export async function loadTasbeehs(): Promise<Tasbeeh[]> {
-  return tasbeehStorage.loadAll();
-}
-
-/**
- * Save all tasbeehs to storage (legacy compatibility)
- * @deprecated Use tasbeehStorage.saveAll() instead
- */
-export async function saveTasbeehs(tasbeehs: Tasbeeh[]): Promise<void> {
-  return tasbeehStorage.saveAll(tasbeehs);
-}
-
-/**
- * Clear all tasbeehs from storage (legacy compatibility)
- * @deprecated Use tasbeehStorage.clear() instead
- */
-export async function clearTasbeehs(): Promise<void> {
-  return tasbeehStorage.clear();
-}
-
-/**
- * Generate a unique ID for a new tasbeeh (legacy compatibility)
- * @deprecated Use generateId from async-storage.service instead
- */
-export { generateId };

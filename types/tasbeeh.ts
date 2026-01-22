@@ -1,5 +1,5 @@
 /**
- * Tasbeeh Module Types
+ * Tasbeeh Types
  */
 
 export type TasbeehPeriod = "daily" | "weekly" | "monthly";

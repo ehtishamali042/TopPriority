@@ -3,13 +3,10 @@
  * Create or edit a tasbeeh entry
  */
 
-import type { TasbeehInput, TasbeehPeriod } from "@/features/tasbeeh";
-import {
-  PERIOD_LABELS,
-  useTasbeeh,
-  useTasbeehActions,
-} from "@/features/tasbeeh";
+import { useTasbeeh, useTasbeehActions } from "@/hooks/use-tasbeeh";
 import { useThemeColor } from "@/hooks/use-theme-color";
+import type { TasbeehInput, TasbeehPeriod } from "@/types/tasbeeh";
+import { PERIOD_LABELS } from "@/types/tasbeeh";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import React, { useEffect, useState } from "react";
 import {

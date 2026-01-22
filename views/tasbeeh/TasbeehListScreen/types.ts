@@ -2,7 +2,7 @@
  * TasbeehListScreen Types
  */
 
-import type { Tasbeeh } from "@/features/tasbeeh";
+import type { Tasbeeh } from "@/types/tasbeeh";
 
 export interface TasbeehListScreenProps {
   // Add any screen-specific props here

@@ -3,13 +3,10 @@
  * Displays all tasbeehs and allows navigation to counter/edit screens
  */
 
-import type { Tasbeeh } from "@/features/tasbeeh";
-import {
-  PERIOD_LABELS,
-  useTasbeehActions,
-  useTasbeehLoader,
-} from "@/features/tasbeeh";
+import { useTasbeehActions, useTasbeehLoader } from "@/hooks/use-tasbeeh";
 import { useThemeColor } from "@/hooks/use-theme-color";
+import type { Tasbeeh } from "@/types/tasbeeh";
+import { PERIOD_LABELS } from "@/types/tasbeeh";
 import { useRouter } from "expo-router";
 import React from "react";
 import {

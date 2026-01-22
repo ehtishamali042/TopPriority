@@ -3,12 +3,9 @@
  * Main counting interface for a tasbeeh
  */
 
-import {
-  PERIOD_LABELS,
-  useTasbeeh,
-  useTasbeehActions,
-} from "@/features/tasbeeh";
+import { useTasbeeh, useTasbeehActions } from "@/hooks/use-tasbeeh";
 import { useThemeColor } from "@/hooks/use-theme-color";
+import { PERIOD_LABELS } from "@/types/tasbeeh";
 import * as Haptics from "expo-haptics";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import React, { useCallback } from "react";
