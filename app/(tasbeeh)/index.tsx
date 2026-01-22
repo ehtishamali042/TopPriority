@@ -1,6 +1,6 @@
 /**
- * Tasbeeh Tab Entry Point
- * Displays the Tasbeeh List Screen directly
+ * Tasbeeh List Route
+ * Renders the TasbeehListScreen component
  */
 
 import TasbeehListScreen from "@/views/tasbeeh/TasbeehListScreen";
